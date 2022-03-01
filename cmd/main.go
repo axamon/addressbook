@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
+	"time"
 
 	"addressbook/proto/pb"
 
 	randomdata "github.com/Pallinder/go-randomdata"
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func main() {
@@ -19,21 +21,28 @@ func main() {
 	// Recupera dati da file.
 	book := &pb.AddressBook{}
 	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		log.Print(err)
+	}
 	proto.Unmarshal(data, book)
+
+	rand.Seed(time.Now().UnixNano())
+	gender := rand.Intn(2)
+	profile := randomdata.GenerateProfile(gender)
+
+	fmt.Printf("%+v\n", profile)
 
 	// Crea nuova persona.
 	p := pb.Person{
-		Id:   uuid.New().String(),
-		Name: randomdata.FullName(1),
-		Phones: []*pb.Person_PhoneNumber{
-			&pb.Person_PhoneNumber{
-				Number: randomdata.PhoneNumber(),
-				Type:   pb.Person_HOME},
-			&pb.Person_PhoneNumber{
-				Number: randomdata.PhoneNumber(),
-				Type:   pb.Person_WORK},
-		},
-		Email: randomdata.Email(),
+		Name:        profile.Name.First + " " + profile.Name.Last,
+		Id:          profile.Login.Sha256,
+		Email:       profile.Email,
+		Gender:      profile.Gender,
+		Nationality: profile.Nat,
+		Picture:     profile.Picture.Large,
+		Dob:         profile.Dob,
+		Phones:      []*pb.Person_PhoneNumber{{Number: profile.Phone, Type: pb.Person_HOME}, {Number: profile.Cell, Type: pb.Person_MOBILE}},
+		LastUpdated: &timestamppb.Timestamp{Seconds: time.Now().UnixNano()},
 	}
 
 	// Aggiunge persona.
