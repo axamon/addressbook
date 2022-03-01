@@ -1,1 +1,0 @@
-protoc addressbook.proto --go_out=plugins=grpc:.
