@@ -1,14 +1,15 @@
 package main
 
 import (
-	"addressbook"
 	"fmt"
 	"io/ioutil"
 	"log"
 
+	"addressbook/proto/pb"
+
 	randomdata "github.com/Pallinder/go-randomdata"
-	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 )
 
 func main() {
@@ -16,21 +17,21 @@ func main() {
 	var file = "book.db"
 
 	// Recupera dati da file.
-	book := &addressbook.pb.AddressBook{}
+	book := &pb.AddressBook{}
 	data, err := ioutil.ReadFile(file)
 	proto.Unmarshal(data, book)
 
 	// Crea nuova persona.
-	p := addressbook.pb.Person{
+	p := pb.Person{
 		Id:   uuid.New().String(),
 		Name: randomdata.FullName(1),
-		Phones: []*addressbook.pb.Person_PhoneNumber{
-			&addressbook.pb.Person_PhoneNumber{
+		Phones: []*pb.Person_PhoneNumber{
+			&pb.Person_PhoneNumber{
 				Number: randomdata.PhoneNumber(),
-				Type:   addressbook.pb.Person_HOME},
-			&addressbook.pb.Person_PhoneNumber{
+				Type:   pb.Person_HOME},
+			&pb.Person_PhoneNumber{
 				Number: randomdata.PhoneNumber(),
-				Type:   addressbook.pb.Person_WORK},
+				Type:   pb.Person_WORK},
 		},
 		Email: randomdata.Email(),
 	}
